@@ -1,7 +1,23 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)"
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(kill 44442)",
+      "Bash(node -e \"const {GL} = require\\('@luma.gl/core'\\); console.log\\(GL?.SRC_ALPHA, GL?.ONE\\)\")",
+      "Bash(node -e \"const core = require\\('@luma.gl/core'\\); console.log\\(Object.keys\\(core\\).slice\\(0,20\\)\\)\")",
+      "Bash(node -e \"const {GL} = require\\('@luma.gl/webgl'\\); console.log\\('SRC_ALPHA:', GL?.SRC_ALPHA, 'ONE:', GL?.ONE\\)\")",
+      "Bash(curl -s http://localhost:3000/api/snapshot)",
+      "Bash(python3 -m json.tool)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d['dams'], indent=2\\)\\)\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson\")",
+      "Bash(python3 -c \" import json, sys data = json.load\\(sys.stdin\\) pak = [f for f in data['features'] if f['properties'].get\\('NAME'\\) == 'Pakistan' or f['properties'].get\\('ADM0_A3'\\) == 'PAK'] print\\(json.dumps\\({'type':'FeatureCollection','features':pak}, indent=2\\)\\) \" wc -l /Users/fahid/Documents/projects/Stack/pakistani-rivers-3d/public/pakistan-border.geojson)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(x['name'], round\\(x['fillFraction'],3\\), x['source']\\) for x in d['dams']]\")"
     ]
   }
 }
