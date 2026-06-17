@@ -5,6 +5,7 @@ import DeckGL from "@deck.gl/react";
 import { TerrainLayer, TripsLayer } from "@deck.gl/geo-layers";
 import { PathLayer, ColumnLayer, SolidPolygonLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
 import type { MapViewState } from "@deck.gl/core";
+import type { Parameters as GPUParameters } from "@luma.gl/core";
 import type { RiverFeature, RiverCollection } from "@/lib/rivers";
 import { DAM_MARKERS } from "@/lib/rivers";
 import type { SnapshotData } from "@/app/api/snapshot/route";
@@ -154,18 +155,15 @@ export default function MapScene({ onSnapshot, mode = "dark" }: MapSceneProps) {
   }, []);
 
   const onViewStateChange = useCallback(
-    ({
-      viewState: vs,
-      interactionState,
-    }: {
-      viewState: MapViewState;
+    (params: {
+      viewState: unknown;
       interactionState?: { isDragging?: boolean };
     }) => {
       // Hand control to the user the moment they drag (pan/rotate)
-      if (interactionState?.isDragging) {
+      if (params.interactionState?.isDragging) {
         setOrbit(false);
       }
-      setViewState(vs);
+      setViewState(params.viewState as MapViewState);
     },
     []
   );
@@ -174,10 +172,14 @@ export default function MapScene({ onSnapshot, mode = "dark" }: MapSceneProps) {
   const GL_SRC_ALPHA = 770;  // 0x0302
   const GL_ONE       = 1;    // additive: dst += src*alpha → true bloom on dark bg
 
+  // Legacy luma.gl v8 parameter names — valid at runtime via the v9 compat shim
+  // but absent from the v9 strict types, so we cast through GPUParameters.
   // Additive blend: layers add light to whatever's behind them
-  const additive = { depthTest: false, blend: true, blendFunc: [GL_SRC_ALPHA, GL_ONE] } as const;
+  const additive = { depthTest: false, blend: true, blendFunc: [GL_SRC_ALPHA, GL_ONE] } as unknown as GPUParameters;
   // Normal alpha for the solid core line
-  const noDepth  = { depthTest: false } as const;
+  const noDepth  = { depthTest: false } as unknown as GPUParameters;
+  // DeckGL canvas clear color
+  const deckParameters = { clearColor: [0.02, 0.02, 0.06, 1] } as unknown as GPUParameters;
   const t = timeRef.current;
 
   function riverColor(name: string): [number, number, number] {
@@ -500,7 +502,7 @@ export default function MapScene({ onSnapshot, mode = "dark" }: MapSceneProps) {
       fontSettings: { sdf: true },
       outlineWidth: 3,
       outlineColor: [3, 6, 16, 255],
-      parameters: { depthTest: false },
+      parameters: noDepth,
       updateTriggers: { getSize: [labelSize], getColor: [snapshot], getText: 1 },
     }),
 
@@ -522,7 +524,7 @@ export default function MapScene({ onSnapshot, mode = "dark" }: MapSceneProps) {
       fontSettings: { sdf: true },
       outlineWidth: 3,
       outlineColor: [3, 6, 16, 255],
-      parameters: { depthTest: false },
+      parameters: noDepth,
       updateTriggers: { getSize: [labelSize], getText: 1 },
     }),
 
@@ -548,7 +550,7 @@ export default function MapScene({ onSnapshot, mode = "dark" }: MapSceneProps) {
       fontSettings: { sdf: true },
       outlineWidth: 3,
       outlineColor: [3, 6, 16, 255],
-      parameters: { depthTest: false },
+      parameters: noDepth,
       updateTriggers: { getSize: [labelSize], getText: [snapshot?.dams] },
     }),
   ];
@@ -563,8 +565,9 @@ export default function MapScene({ onSnapshot, mode = "dark" }: MapSceneProps) {
       onViewStateChange={onViewStateChange}
       controller={true}
       layers={layers}
-      parameters={{ clearColor: [0.02, 0.02, 0.06, 1] }}
-      getTooltip={({ object }: { object: unknown }) => {
+      parameters={deckParameters}
+      getTooltip={(info: { object?: unknown }) => {
+        const object = info.object;
         if (!object) return null;
         const dam = object as (typeof DAM_MARKERS)[0];
         if (dam?.name) {
