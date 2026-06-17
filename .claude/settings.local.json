@@ -21,7 +21,8 @@
       "Bash(node scripts/make-gif.mjs)",
       "Bash(node -e \"const sharp=require\\('sharp'\\); sharp\\('docs/orbit.gif',{page:20}\\).png\\(\\).toFile\\('/tmp/gifcheck.png'\\).then\\(i=>console.log\\('ok',i.width,i.height\\)\\).catch\\(e=>console.error\\(e.message\\)\\)\")",
       "Bash(npx tsc *)",
-      "Bash(node -e \"const p=require\\('@luma.gl/core'\\); console.log\\('Parameters' in p ? 'runtime-export' : 'type-only ok'\\)\")"
+      "Bash(node -e \"const p=require\\('@luma.gl/core'\\); console.log\\('Parameters' in p ? 'runtime-export' : 'type-only ok'\\)\")",
+      "Bash(node -e ' *)"
     ]
   }
 }

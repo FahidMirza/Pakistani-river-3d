@@ -72,6 +72,16 @@ function toTrip(feature: RiverFeature): RiverTrip {
   };
 }
 
+// Approximate path length in degrees — used to space comet pulses evenly so a
+// long river (Indus) shows a continuous stream rather than one lonely comet.
+function pathDegLength(path: [number, number][]): number {
+  let s = 0;
+  for (let i = 1; i < path.length; i++) {
+    s += Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]);
+  }
+  return s;
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 interface MapSceneProps {
   onSnapshot?: (s: SnapshotData) => void;
@@ -336,6 +346,10 @@ export default function MapScene({ onSnapshot, mode = "dark" }: MapSceneProps) {
       const col = info?.color ?? trip.color;
       const ct = (t * speedMult) % 1;
 
+      // More pulses on longer rivers so the whole length always reads as a
+      // flowing stream (~3° of river per pulse), instead of one lonely comet.
+      const pulseCount = Math.max(1, Math.min(6, Math.round(pathDegLength(trip.path) / 3)));
+
       const glowCol: [number, number, number] = [
         Math.min(255, col[0] + 50),
         Math.min(255, col[1] + 50),
@@ -347,40 +361,44 @@ export default function MapScene({ onSnapshot, mode = "dark" }: MapSceneProps) {
         Math.min(255, col[2] + 110),
       ];
 
-      return [
-        // Wide soft glow trail
-        new TripsLayer<RiverTrip>({
-          id: `trips-glow-${trip.riverName}`,
-          data: [trip],
-          getPath: (d) => d.path,
-          getTimestamps: (d) => d.timestamps,
-          getColor: () => glowCol,
-          opacity: 1,
-          widthMinPixels: 10,
-          widthMaxPixels: 28,
-          trailLength: trailLength * 1.4,
-          currentTime: ct,
-          jointRounded: true,
-          capRounded: true,
-          parameters: additive,
-        }),
-        // White-hot narrow head
-        new TripsLayer<RiverTrip>({
-          id: `trips-hot-${trip.riverName}`,
-          data: [trip],
-          getPath: (d) => d.path,
-          getTimestamps: (d) => d.timestamps,
-          getColor: () => hotCol,
-          opacity: 1,
-          widthMinPixels: 3,
-          widthMaxPixels: 9,
-          trailLength: trailLength * 0.55,
-          currentTime: ct,
-          jointRounded: true,
-          capRounded: true,
-          parameters: additive,
-        }),
-      ];
+      return Array.from({ length: pulseCount }, (_, i) => {
+        // Evenly phase-shift each pulse along the path
+        const pt = (ct + i / pulseCount) % 1;
+        return [
+          // Wide soft glow trail
+          new TripsLayer<RiverTrip>({
+            id: `trips-glow-${trip.riverName}-${i}`,
+            data: [trip],
+            getPath: (d) => d.path,
+            getTimestamps: (d) => d.timestamps,
+            getColor: () => glowCol,
+            opacity: 1,
+            widthMinPixels: 10,
+            widthMaxPixels: 28,
+            trailLength: trailLength * 1.4,
+            currentTime: pt,
+            jointRounded: true,
+            capRounded: true,
+            parameters: additive,
+          }),
+          // White-hot narrow head
+          new TripsLayer<RiverTrip>({
+            id: `trips-hot-${trip.riverName}-${i}`,
+            data: [trip],
+            getPath: (d) => d.path,
+            getTimestamps: (d) => d.timestamps,
+            getColor: () => hotCol,
+            opacity: 1,
+            widthMinPixels: 3,
+            widthMaxPixels: 9,
+            trailLength: trailLength * 0.55,
+            currentTime: pt,
+            jointRounded: true,
+            capRounded: true,
+            parameters: additive,
+          }),
+        ];
+      }).flat();
     }),
 
     // ── Dams as luminous water vessels ───────────────────────────────────────
