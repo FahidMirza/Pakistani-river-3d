@@ -17,7 +17,9 @@
       "Bash(curl -s \"https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson\")",
       "Bash(python3 -c \" import json, sys data = json.load\\(sys.stdin\\) pak = [f for f in data['features'] if f['properties'].get\\('NAME'\\) == 'Pakistan' or f['properties'].get\\('ADM0_A3'\\) == 'PAK'] print\\(json.dumps\\({'type':'FeatureCollection','features':pak}, indent=2\\)\\) \" wc -l /Users/fahid/Documents/projects/Stack/pakistani-rivers-3d/public/pakistan-border.geojson)",
       "Bash(python3 -c ' *)",
-      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(x['name'], round\\(x['fillFraction'],3\\), x['source']\\) for x in d['dams']]\")"
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(x['name'], round\\(x['fillFraction'],3\\), x['source']\\) for x in d['dams']]\")",
+      "Bash(node scripts/make-gif.mjs)",
+      "Bash(node -e \"const sharp=require\\('sharp'\\); sharp\\('docs/orbit.gif',{page:20}\\).png\\(\\).toFile\\('/tmp/gifcheck.png'\\).then\\(i=>console.log\\('ok',i.width,i.height\\)\\).catch\\(e=>console.error\\(e.message\\)\\)\")"
     ]
   }
 }

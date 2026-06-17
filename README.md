@@ -9,7 +9,7 @@ appear as luminous water vessels whose fill level reflects the current reservoir
 Built in a day with [Claude](https://claude.ai) — I'd always wanted to see Pakistan's
 rivers as live, visual data, so I made it.
 
-![Pakistan Rivers — Live](docs/screenshot.png)
+![Pakistan Rivers — Live](docs/orbit.gif)
 
 > **Live demo:** _add your deployed URL here_
 
